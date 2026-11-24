@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Addresses | GramKart{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-extrabold font-heading text-slate-900 flex items-center gap-3">
+                <i class="bi bi-geo-alt-fill text-indigo-600"></i> Your Saved Addresses
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">Manage shipping destinations for swift 1-click checkout</p>
+        </div>
+        <a href="{% url 'accounts:address_add' %}" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-2xl text-xs shadow-md transition flex items-center gap-2">
+            <i class="bi bi-plus-lg"></i> Add Address
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Add New Address Card Placeholder -->
+        <a href="{% url 'accounts:address_add' %}" class="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-3xl p-8 flex flex-col items-center justify-center text-center group transition min-h-[220px]">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl group-hover:scale-110 transition mb-2">
+                <i class="bi bi-plus-lg"></i>
+            </div>
+            <span class="font-extrabold text-sm text-slate-900 group-hover:text-indigo-600 transition">Add New Address</span>
+        </a>
+
+        {% for addr in addresses %}
+        <div class="bg-white rounded-3xl border-2 {% if addr.is_default_shipping %}border-indigo-600 shadow-md{% else %}border-slate-200{% endif %} p-6 flex flex-col justify-between">
+            <div>
+                <div class="flex items-start justify-between mb-3">
+                    <span class="text-xs uppercase font-extrabold px-2.5 py-0.5 rounded-full {% if addr.is_default_shipping %}bg-indigo-600 text-white{% else %}bg-slate-100 text-slate-600{% endif %}">
+                        {% if addr.is_default_shipping %}Default Shipping{% else %}{{ addr.get_address_type_display }}{% endif %}
+                    </span>
+                </div>
+
+                <h3 class="font-bold text-base text-slate-900">{{ addr.full_name }}</h3>
+                <div class="text-xs text-slate-600 mt-2 space-y-0.5">
+                    <p>{{ addr.street_address }}</p>
+                    {% if addr.apartment_suite %}<p>{{ addr.apartment_suite }}</p>{% endif %}
+                    <p>{{ addr.city }}, {{ addr.state }} {{ addr.postal_code }}</p>
+                    <p>{{ addr.country }}</p>
+                    <p class="pt-2 text-slate-500"><i class="bi bi-telephone"></i> {{ addr.phone_number }}</p>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4 mt-4 flex items-center justify-between text-xs font-bold">
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'accounts:address_edit' addr.id %}" class="text-indigo-600 hover:underline">Edit</a>
+                    <span class="text-slate-300">|</span>
+                    <form action="{% url 'accounts:address_delete' addr.id %}" method="POST" class="inline" onsubmit="return confirm('Remove this address?');">
+                        {% csrf_token %}
+                        <button type="submit" class="text-rose-600 hover:underline">Delete</button>
+                    </form>
+                </div>
+
+                {% if not addr.is_default_shipping %}
+                    <a href="{% url 'accounts:address_set_default' addr.id %}" class="text-slate-500 hover:text-indigo-600">Set as Default</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+{% endblock %}

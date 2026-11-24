@@ -1,0 +1,113 @@
+<div class="product-card bg-white rounded-3xl border border-slate-200/80 hover:border-indigo-300 p-4 flex flex-col justify-between relative group overflow-hidden">
+    
+    <!-- Badges & Wishlist Trigger -->
+    <div class="relative w-full aspect-square bg-slate-50 rounded-2xl overflow-hidden mb-4 flex items-center justify-center">
+        <!-- Floating Badges -->
+        <div class="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+            {% if product.discount_percent > 0 %}
+                <span class="bg-rose-500 text-white text-[11px] font-extrabold px-2.5 py-1 rounded-full shadow-md tracking-tight">
+                    -{{ product.discount_percent }}% OFF
+                </span>
+            {% endif %}
+            {% if product.is_best_seller %}
+                <span class="bg-amber-400 text-slate-900 text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm uppercase tracking-wider flex items-center gap-1">
+                    <i class="bi bi-star-fill text-[9px]"></i> Best Seller
+                </span>
+            {% elif product.is_deal_of_the_day %}
+                <span class="bg-indigo-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-sm uppercase tracking-wider">
+                    ⚡ Deal of Day
+                </span>
+            {% endif %}
+        </div>
+
+        <!-- Wishlist Button -->
+        <button 
+            type="button"
+            class="wishlist-toggle-btn absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/90 backdrop-blur-md shadow-md border border-slate-100 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:scale-110 transition"
+            data-product-id="{{ product.id }}"
+            title="Add to Wishlist"
+        >
+            <i class="bi {% if product.id in user_wishlist_ids or is_in_wishlist %}bi-heart-fill text-rose-500{% else %}bi-heart{% endif %} text-base"></i>
+        </button>
+
+        <!-- Product Image -->
+        <a href="{{ product.get_absolute_url }}" class="w-full h-full flex items-center justify-center p-4">
+            <img 
+                src="{{ product.primary_image_url }}" 
+                alt="{{ product.name }}" 
+                loading="lazy"
+                class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500"
+            >
+        </a>
+    </div>
+
+    <!-- Product Info Details -->
+    <div class="flex-1 flex flex-col">
+        <!-- Category & Brand -->
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-1.5">
+            <a href="{% url 'products:category_products' product.category.slug %}" class="hover:text-indigo-600 font-medium truncate max-w-[60%]">
+                {{ product.category.name }}
+            </a>
+            {% if product.brand %}
+                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{{ product.brand.name }}</span>
+            {% endif %}
+        </div>
+
+        <!-- Product Title -->
+        <h3 class="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition line-clamp-2 leading-snug mb-2">
+            <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+        </h3>
+
+        <!-- Star Rating -->
+        <div class="flex items-center gap-1.5 mb-3">
+            <div class="flex text-amber-400 text-xs">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= product.average_rating %}
+                        <i class="bi bi-star-fill"></i>
+                    {% elif forloop.counter|add:"-0.5" <= product.average_rating %}
+                        <i class="bi bi-star-half"></i>
+                    {% else %}
+                        <i class="bi bi-star text-slate-200"></i>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <span class="text-xs font-bold text-slate-700">{{ product.average_rating|stringformat:".1f" }}</span>
+            <span class="text-xs text-slate-400">({{ product.total_reviews }})</span>
+        </div>
+
+        <!-- Pricing & Stock -->
+        <div class="mt-auto pt-2 border-t border-slate-100 flex items-center justify-between">
+            <div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-lg font-extrabold text-slate-900 font-heading leading-tight">₹{{ product.current_price }}</span>
+                    {% if product.discount_price and product.discount_price < product.price %}
+                        <span class="text-xs text-slate-400 line-through font-medium">₹{{ product.price }}</span>
+                    {% endif %}
+                </div>
+                <p class="text-[11px] {% if product.in_stock %}text-emerald-600 font-semibold{% else %}text-rose-500 font-medium{% endif %}">
+                    {% if product.in_stock %}In Stock ({{ product.stock }}){% else %}Out of Stock{% endif %}
+                </p>
+            </div>
+
+            <!-- Quick Add to Cart Button -->
+            {% if product.in_stock %}
+                <form action="{% url 'cart:cart_add' product.id %}" method="POST" class="inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" value="1">
+                    <button 
+                        type="submit" 
+                        class="w-10 h-10 rounded-2xl bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white flex items-center justify-center transition shadow-sm group-hover:bg-indigo-600 group-hover:text-white"
+                        title="Add to Cart"
+                    >
+                        <i class="bi bi-bag-plus-fill text-lg"></i>
+                    </button>
+                </form>
+            {% else %}
+                <button disabled class="w-10 h-10 rounded-2xl bg-slate-100 text-slate-300 flex items-center justify-center cursor-not-allowed">
+                    <i class="bi bi-slash-circle text-lg"></i>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+</div>

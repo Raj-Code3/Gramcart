@@ -1,0 +1,30 @@
+{% if messages %}
+    {% for message in messages %}
+        <div class="flex items-center gap-3 px-4 py-3.5 rounded-2xl shadow-xl border text-sm font-medium transition-all transform animate-bounce-in
+            {% if message.tags == 'error' %}
+                bg-rose-50 border-rose-200 text-rose-800
+            {% elif message.tags == 'success' %}
+                bg-emerald-50 border-emerald-200 text-emerald-800
+            {% elif message.tags == 'warning' %}
+                bg-amber-50 border-amber-200 text-amber-800
+            {% else %}
+                bg-indigo-50 border-indigo-200 text-indigo-800
+            {% endif %}"
+            x-data="{ show: true }"
+            x-show="show"
+            x-init="setTimeout(() => show = false, 4500)"
+        >
+            <i class="bi 
+                {% if message.tags == 'error' %}bi-exclamation-triangle-fill text-rose-500
+                {% elif message.tags == 'success' %}bi-check-circle-fill text-emerald-500
+                {% elif message.tags == 'warning' %}bi-exclamation-circle-fill text-amber-500
+                {% else %}bi-info-circle-fill text-indigo-500
+                {% endif %} text-lg">
+            </i>
+            <span class="flex-1">{{ message }}</span>
+            <button @click="show = false" class="text-slate-400 hover:text-slate-600 transition">
+                <i class="bi bi-x-lg text-xs"></i>
+            </button>
+        </div>
+    {% endfor %}
+{% endif %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} | GramKart{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+    <nav class="text-xs text-slate-500 mb-6"><a href="{% url 'products:product_list' %}" class="hover:text-indigo-600">Home</a> / <a href="{% url 'products:policy_index' %}" class="hover:text-indigo-600">Policies</a> / {{ group }}</nav>
+    <span class="inline-block bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full mb-3">{{ group }}</span>
+    <h1 class="text-3xl sm:text-4xl font-heading font-bold text-slate-900 mb-6">{{ title }}</h1>
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4 text-slate-700 leading-relaxed">
+        {% for para in paragraphs %}<p>{{ para }}</p>{% endfor %}
+        {% if official_link %}<p class="pt-2"><a href="{{ official_link }}" target="_blank" rel="noopener" class="text-indigo-600 font-semibold hover:underline">Official portal <i class="bi bi-box-arrow-up-right"></i></a></p>{% endif %}
+        <p class="text-xs text-slate-400 border-t border-slate-100 pt-4">This page is an informational summary. Rules and limits change - always verify the latest conditions on the official portal.</p>
+    </div>
+    {% if siblings %}
+    <h2 class="text-lg font-heading font-bold mt-10 mb-3">More in {{ group }}</h2>
+    <div class="flex flex-wrap gap-2">
+        {% for s, t in siblings %}<a href="{% url 'products:policy' s %}" class="text-xs bg-white border border-slate-200 hover:border-indigo-400 hover:text-indigo-600 rounded-full px-3 py-1.5 transition">{{ t }}</a>{% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

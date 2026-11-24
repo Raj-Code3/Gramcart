@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GramKart | Fashion Delivered to Every Village{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Tailwind CSS with Forms plugin -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        indigo: {50:'#fdf2f4',100:'#fce7ea',200:'#f9d0d7',300:'#f4a8b5',400:'#ea7489',500:'#d9486a',600:'#b8284f',700:'#981f42',800:'#7e1c3b',900:'#6b1b36',950:'#3c0a1b'},
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                            950: '#1e1b4b',
+                        },
+                        darknavy: {
+                            800: '#111827',
+                            900: '#0B0F19',
+                            950: '#070A10'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Jost"', 'sans-serif'],
+                        heading: ['"Playfair Display"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="flex flex-col min-h-full text-slate-800 antialiased font-sans pb-16 md:pb-0" x-data="{ mobileMenuOpen: false, categoryDrawerOpen: false }">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm pointer-events-auto">
+        {% include 'includes/alerts.html' %}
+    </div>
+
+    <!-- Header Navigation -->
+    {% include 'includes/navbar.html' %}
+
+    <!-- Main Content Container -->
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% include 'includes/footer.html' %}
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-lg border-t border-slate-200 px-3 py-2 flex items-center justify-around text-slate-600">
+        <a href="{% url 'products:product_list' %}" class="flex flex-col items-center gap-1 text-xs {% if request.path == '/' %}text-indigo-600 font-bold{% endif %}">
+            <i class="bi bi-house-door text-lg"></i>
+            <span>Home</span>
+        </a>
+        <button @click="categoryDrawerOpen = !categoryDrawerOpen" class="flex flex-col items-center gap-1 text-xs">
+            <i class="bi bi-grid text-lg"></i>
+            <span>Categories</span>
+        </button>
+        <a href="{% url 'products:wishlist' %}" class="flex flex-col items-center gap-1 text-xs relative">
+            <i class="bi bi-heart text-lg"></i>
+            <span>Wishlist</span>
+            {% if wishlist_count > 0 %}
+            <span class="absolute -top-1 right-2 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] flex items-center justify-center font-bold">{{ wishlist_count }}</span>
+            {% endif %}
+        </a>
+        <a href="{% url 'cart:cart_detail' %}" class="flex flex-col items-center gap-1 text-xs relative">
+            <i class="bi bi-bag text-lg"></i>
+            <span>Cart</span>
+            {% if cart_count > 0 %}
+            <span class="absolute -top-1 right-1 w-4 h-4 bg-indigo-600 text-white rounded-full text-[10px] flex items-center justify-center font-bold">{{ cart_count }}</span>
+            {% endif %}
+        </a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'accounts:profile' %}" class="flex flex-col items-center gap-1 text-xs {% if 'accounts' in request.path %}text-indigo-600 font-bold{% endif %}">
+            <i class="bi bi-person-circle text-lg"></i>
+            <span>Account</span>
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="flex flex-col items-center gap-1 text-xs">
+            <i class="bi bi-person text-lg"></i>
+            <span>Sign In</span>
+        </a>
+        {% endif %}
+    </nav>
+
+    <!-- Custom App Script -->
+    <script src="{% static 'js/app.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

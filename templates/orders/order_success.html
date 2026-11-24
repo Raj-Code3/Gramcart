@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed #{{ order.order_number }} | GramKart{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- Celebration Header Card -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 shadow-sm text-center mb-8">
+        <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <span class="text-xs uppercase font-extrabold tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+            Payment Received & Verified
+        </span>
+        <h1 class="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900 mt-3 mb-2">
+            Thank you for your order, {{ order.full_name }}!
+        </h1>
+        <p class="text-sm text-slate-500 max-w-md mx-auto">
+            We've sent a confirmation email receipt to <strong class="text-slate-800">{{ order.email }}</strong>. Your order is now being prepped for fulfillment.
+        </p>
+
+        <!-- Order Summary Pills -->
+        <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
+            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Order Number</p>
+                <p class="text-sm font-extrabold text-slate-900 font-mono mt-0.5">{{ order.order_number }}</p>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Estimated Delivery</p>
+                <p class="text-sm font-extrabold text-indigo-600 mt-0.5">{{ order.estimated_delivery|date:"l, F d, Y" }}</p>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Tracking Code</p>
+                <p class="text-sm font-extrabold text-slate-900 font-mono mt-0.5">{{ order.tracking_number }}</p>
+            </div>
+        </div>
+
+        <!-- Action Links -->
+        <div class="flex flex-wrap items-center justify-center gap-4 mt-8">
+            <a href="{% url 'orders:order_detail' order.order_number %}" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3.5 rounded-2xl shadow-lg shadow-indigo-600/30 transition text-sm flex items-center gap-2">
+                <i class="bi bi-box-seam"></i> Track Order Details
+            </a>
+            <a href="{% url 'products:product_list' %}" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold px-6 py-3.5 rounded-2xl transition text-sm">
+                Continue Shopping
+            </a>
+        </div>
+    </div>
+
+    <!-- Items in this shipment -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+        <h3 class="text-base font-extrabold font-heading text-slate-900 uppercase tracking-wider mb-6">
+            Shipment Summary ({{ order.items.count }} items)
+        </h3>
+
+        <div class="divide-y divide-slate-100">
+            {% for item in order.items.all %}
+            <div class="py-4 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <img src="{{ item.product_image_url }}" alt="{{ item.product_name }}" class="w-16 h-16 rounded-2xl object-contain bg-slate-50 p-2 border border-slate-100">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-900">{{ item.product_name }}</h4>
+                        <p class="text-xs text-slate-500">Qty: {{ item.quantity }} &bull; Unit: ₹{{ item.price }}</p>
+                    </div>
+                </div>
+                <span class="text-sm font-extrabold text-slate-900 font-heading">₹{{ item.total_price }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="border-t border-slate-100 pt-4 mt-4 space-y-2 text-xs text-slate-600 max-w-xs ml-auto text-right">
+            <p>Subtotal: <strong class="text-slate-900">₹{{ order.subtotal }}</strong></p>
+            <p>Shipping: <strong class="text-slate-900">₹{{ order.shipping_fee }}</strong></p>
+            <p>Tax: <strong class="text-slate-900">₹{{ order.tax_amount }}</strong></p>
+            <p class="text-base font-extrabold text-slate-900 pt-1 border-t border-slate-100">Grand Total: <strong class="text-indigo-600">₹{{ order.grand_total }}</strong></p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

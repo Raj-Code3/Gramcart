@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | GramKart{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-xl space-y-6">
+        <div>
+            <a href="{% url 'accounts:address_list' %}" class="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1 mb-2">
+                <i class="bi bi-arrow-left"></i> Back to Addresses
+            </a>
+            <h1 class="text-2xl font-extrabold font-heading text-slate-900">{{ title }}</h1>
+        </div>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.full_name.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Phone Number</label>
+                    {{ form.phone_number }}
+                    {% if form.phone_number.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.phone_number.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Street Address</label>
+                {{ form.street_address }}
+                {% if form.street_address.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.street_address.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Apartment, Suite, Unit, etc. (Optional)</label>
+                {{ form.apartment_suite }}
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">City</label>
+                    {{ form.city }}
+                    {% if form.city.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.city.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">State / Province</label>
+                    {{ form.state }}
+                    {% if form.state.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.state.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">ZIP / Postal Code</label>
+                    {{ form.postal_code }}
+                    {% if form.postal_code.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.postal_code.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Country</label>
+                    {{ form.country }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Address Type</label>
+                    {{ form.address_type }}
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Delivery Instructions (Optional)</label>
+                {{ form.delivery_instructions }}
+            </div>
+
+            <div class="flex items-center gap-2 pt-2">
+                {{ form.is_default_shipping }}
+                <label for="{{ form.is_default_shipping.id_for_label }}" class="text-xs font-bold text-slate-700 cursor-pointer">
+                    Set as my default shipping address
+                </label>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold text-sm shadow-md transition mt-4">
+                Save Address
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

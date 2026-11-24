@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Secure Checkout | GramKart{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <div class="flex items-center gap-3 mb-8">
+        <span class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-extrabold text-lg">
+            <i class="bi bi-shield-lock-fill"></i>
+        </span>
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900">Secure Order Checkout</h1>
+            <p class="text-xs text-slate-500">256-bit SSL encrypted checkout &bull; Fast fulfillment</p>
+        </div>
+    </div>
+
+    <form method="POST" action="{% url 'orders:checkout' %}" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {% csrf_token %}
+
+        <!-- Left Column: Checkout Accordion Steps -->
+        <div class="lg:col-span-8 space-y-6">
+
+            <!-- Step 1: Shipping Address -->
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                    <h2 class="text-lg font-extrabold font-heading text-slate-900 flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center font-bold">1</span>
+                        Shipping Address
+                    </h2>
+                    {% if user.is_authenticated and user_addresses %}
+                        <a href="{% url 'accounts:address_add' %}?next={% url 'orders:checkout' %}" class="text-xs font-bold text-indigo-600 hover:underline">
+                            + Add New Address
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Saved Address Cards for Logged-in Users -->
+                {% if user.is_authenticated and user_addresses %}
+                    <div class="mb-6">
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Choose from Saved Addresses:</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {% for addr in user_addresses %}
+                            <label class="relative p-4 rounded-2xl border-2 cursor-pointer transition flex flex-col justify-between {% if addr.is_default_shipping or forloop.first %}border-indigo-600 bg-indigo-50/40{% else %}border-slate-200 hover:border-slate-300{% endif %}">
+                                <div class="flex items-start justify-between">
+                                    <span class="font-bold text-sm text-slate-900">{{ addr.full_name }}</span>
+                                    {% if addr.is_default_shipping %}
+                                        <span class="text-[10px] bg-indigo-600 text-white font-bold px-2 py-0.5 rounded-full">Default</span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-xs text-slate-600 mt-2">{{ addr.street_address }}{% if addr.apartment_suite %}, {{ addr.apartment_suite }}{% endif %}</p>
+                                <p class="text-xs text-slate-600">{{ addr.city }}, {{ addr.state }} {{ addr.postal_code }}</p>
+                                <p class="text-xs text-slate-500 mt-1"><i class="bi bi-telephone text-[10px]"></i> {{ addr.phone_number }}</p>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Address Input Fields -->
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Full Name</label>
+                            {{ form.full_name }}
+                            {% if form.full_name.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.full_name.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.email.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Phone Number</label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.phone_number.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Street Address</label>
+                            {{ form.shipping_address }}
+                            {% if form.shipping_address.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.shipping_address.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Apt / Suite (Optional)</label>
+                            {{ form.apartment_suite }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">City</label>
+                            {{ form.city }}
+                            {% if form.city.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.city.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">State</label>
+                            {{ form.state }}
+                            {% if form.state.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.state.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Postal / ZIP Code</label>
+                            {{ form.postal_code }}
+                            {% if form.postal_code.errors %}<p class="text-xs text-rose-600 mt-1">{{ form.postal_code.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Country</label>
+                            {{ form.country }}
+                        </div>
+                    </div>
+
+                    {% if user.is_authenticated %}
+                    <div class="flex items-center gap-2 pt-2">
+                        {{ form.save_address }}
+                        <label for="{{ form.save_address.id_for_label }}" class="text-xs font-medium text-slate-700 cursor-pointer">
+                            Save this address to your address book for future orders
+                        </label>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Step 2: Delivery Speed Selection -->
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+                <div class="border-b border-slate-100 pb-4 mb-6">
+                    <h2 class="text-lg font-extrabold font-heading text-slate-900 flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center font-bold">2</span>
+                        Choose Delivery Speed
+                    </h2>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-indigo-500 cursor-pointer transition">
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="delivery_method" value="standard" checked class="text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <p class="text-sm font-bold text-slate-900">Standard Delivery (3-5 Business Days)</p>
+                                <p class="text-xs text-slate-500">Estimated Delivery: 4 days from order</p>
+                            </div>
+                        </div>
+                        <span class="text-sm font-extrabold {% if standard_shipping == 0 %}text-emerald-600{% else %}text-slate-900{% endif %}">
+                            {% if standard_shipping == 0 %}FREE{% else %}₹{{ standard_shipping }}{% endif %}
+                        </span>
+                    </label>
+
+                    <label class="flex items-center justify-between p-4 rounded-2xl border border-indigo-200 bg-indigo-50/30 hover:border-indigo-500 cursor-pointer transition">
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="delivery_method" value="express" class="text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <p class="text-sm font-bold text-indigo-900 flex items-center gap-1.5">
+                                    <i class="bi bi-lightning-charge-fill text-amber-500"></i> Express Delivery (1-2 Days)
+                                </p>
+                                <p class="text-xs text-slate-500">Fast prioritized doorstep drop-off</p>
+                            </div>
+                        </div>
+                        <span class="text-sm font-extrabold text-indigo-600">₹149</span>
+                    </label>
+
+                    <label class="flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-indigo-500 cursor-pointer transition">
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="delivery_method" value="same_day" class="text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <p class="text-sm font-bold text-slate-900">Same-Day Priority Delivery</p>
+                                <p class="text-xs text-slate-500">Delivery by 9:00 PM today</p>
+                            </div>
+                        </div>
+                        <span class="text-sm font-extrabold text-slate-900">₹249</span>
+                    </label>
+                </div>
+
+                <div class="mt-4">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Delivery Instructions (Optional)</label>
+                    {{ form.delivery_notes }}
+                </div>
+            </div>
+
+            <!-- Step 3: Payment Method -->
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+                <div class="border-b border-slate-100 pb-4 mb-6">
+                    <h2 class="text-lg font-extrabold font-heading text-slate-900 flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center font-bold">3</span>
+                        Payment Method
+                    </h2>
+                </div>
+
+                <div class="space-y-3 mb-6" x-data="{ selectedPayment: 'card' }">
+                    <label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition" :class="selectedPayment === 'card' ? 'border-indigo-600 bg-indigo-50/40' : 'border-slate-200'">
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="payment_method" value="card" checked x-model="selectedPayment" class="text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                <i class="bi bi-credit-card text-indigo-600 text-lg"></i> Credit / Debit Card
+                            </span>
+                        </div>
+                        <div class="flex gap-1.5 text-slate-400 text-lg">
+                            <i class="bi bi-credit-card-2-front-fill"></i>
+                        </div>
+                    </label>
+
+                    <!-- Mock Card Details Input fields -->
+                    <div x-show="selectedPayment === 'card'" x-transition class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Card Number</label>
+                            {{ form.card_number }}
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Expiration</label>
+                                {{ form.card_expiry }}
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">CVV / CVC</label>
+                                {{ form.card_cvv }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition" :class="selectedPayment === 'paypal' ? 'border-indigo-600 bg-indigo-50/40' : 'border-slate-200'">
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="payment_method" value="paypal" x-model="selectedPayment" class="text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                <i class="bi bi-phone text-emerald-600 text-lg"></i> UPI (Google Pay, PhonePe, Paytm)
+                            </span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition" :class="selectedPayment === 'applepay' ? 'border-indigo-600 bg-indigo-50/40' : 'border-slate-200'">
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="payment_method" value="applepay" x-model="selectedPayment" class="text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                <i class="bi bi-bank text-lg"></i> Net Banking / Wallets
+                            </span>
+                        </div>
+                    </label>
+
+                    <label class="flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition" :class="selectedPayment === 'cod' ? 'border-indigo-600 bg-indigo-50/40' : 'border-slate-200'">
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="payment_method" value="cod" x-model="selectedPayment" class="text-indigo-600 focus:ring-indigo-500">
+                            <span class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                <i class="bi bi-cash-stack text-emerald-600 text-lg"></i> Cash on Delivery (COD)
+                            </span>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-extrabold text-base shadow-xl shadow-indigo-600/30 transition flex items-center justify-center gap-2">
+                    <i class="bi bi-check-circle-fill"></i> Place Your Order Now
+                </button>
+                <p class="text-[11px] text-center text-slate-400 mt-2">By placing your order, you agree to GramKart's Conditions of Use & Privacy Notice.</p>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Order Review Sidebar -->
+        <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white rounded-3xl border border-slate-200 p-6 shadow-md space-y-6 sticky top-28">
+                <h3 class="text-base font-bold font-heading text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-3">
+                    Items in Order ({{ cart_count }})
+                </h3>
+
+                <!-- Cart item snapshots -->
+                <div class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                    {% for item in cart %}
+                    <div class="flex items-center gap-3">
+                        <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}" class="w-12 h-12 rounded-xl object-contain bg-slate-50 p-1 border border-slate-100 flex-shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-bold text-slate-800 truncate">{{ item.product.name }}</p>
+                            <p class="text-[11px] text-slate-500">Qty: {{ item.quantity }} &bull; ₹{{ item.total_price }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Costs Breakdown -->
+                <div class="space-y-2.5 text-sm border-t border-slate-100 pt-4">
+                    <div class="flex justify-between text-slate-600">
+                        <span>Items Subtotal:</span>
+                        <span class="font-bold text-slate-900">₹{{ cart_subtotal }}</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Estimated Shipping:</span>
+                        <span class="font-bold text-slate-900">Calculated above</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Estimated Tax (5%):</span>
+                        <span class="font-bold text-slate-900">₹{{ tax }}</span>
+                    </div>
+                    <div class="border-t border-slate-100 pt-3 flex justify-between text-base">
+                        <span class="font-extrabold text-slate-900">Total:</span>
+                        <span class="font-black text-2xl text-indigo-600 font-heading">₹{{ cart_grand_total }}</span>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-xs text-emerald-800 flex items-center gap-3">
+                    <i class="bi bi-patch-check-fill text-lg text-emerald-600 flex-shrink-0"></i>
+                    <span>Your order is backed by our 100% Satisfaction & Authenticity Guarantee.</span>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}
